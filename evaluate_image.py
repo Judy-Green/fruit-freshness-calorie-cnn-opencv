@@ -2,6 +2,13 @@ import cv2
 import numpy as np
 from keras.models import load_model
 
+_freshness_model = None
+def load_freshness_model():
+    """加载新鲜度评估模型，只在第一次调用时加载"""
+    global _freshness_model
+    if _freshness_model is None:
+        _freshness_model = load_model(r"model/rottenvsfresh98pval.h5")
+    return _freshness_model
 
 # Classify fresh/rotten
 def is_fresh(res):
@@ -28,12 +35,13 @@ def pre_proc_img(image_path):
 
 
 def evaluate_rotten_vs_fresh(image_path):
-    # Load the trained model
-    model = load_model(r"E:\cmc\Food-Calories-Estimation-Using-Image-Processing-master\Food-Calories-Estimation-Using-Image-Processing-master\model\rottenvsfresh98pval.h5")
-
-    # Read and process and predict
+    """使用已加载的模型进行预测"""
+    model = load_freshness_model()
     prediction = model.predict(pre_proc_img(image_path))
     is_rotten = prediction[0][0]
     mes = is_fresh(is_rotten)
     return mes
+if __name__ == '__main__':
+    evaluate_rotten_vs_fresh(r"C:\Users\28185\Desktop\OIP (2).jpg")
+
 
